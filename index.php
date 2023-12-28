@@ -34,6 +34,7 @@ $action = $_REQUEST['action'] ?? '';
     <link rel="stylesheet" href="assets/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>DMS||DashBoard</title>
 </head>
 
@@ -247,7 +248,7 @@ $action = $_REQUEST['action'] ?? '';
                             </div>
                         </div>
                         <?php }else{?>
-                            <div class="col-3">
+                        <div class="col-3">
                             <div class="total__box text-center">
                                 <h1>
                                     <?php
@@ -315,11 +316,60 @@ $action = $_REQUEST['action'] ?? '';
 
             <!-- ------------------------------statistics------------------------ -->
             <?php if($id=='statistics'){ 
+                $getDrug = "SELECT * FROM drugs";
+                $result = mysqli_query($connection, $getDrug);
+                
+                $drugs = array();                
+                while ($drug = mysqli_fetch_assoc($result)) {
+                    $drugs[] = $drug;}
+
+                $getSales = "SELECT MONTH(time_sold) AS month, SUM(quantity_sold) AS total_sales FROM sale GROUP BY MONTH(time_sold)";
+                $result = mysqli_query($connection, $getSales);
+                
+                $salesData = array();
+                
+                while ($sale = mysqli_fetch_assoc($result)) {
+                    $salesData[] = $sale;
+                }
                 if('admin' == $sessionRole || 'pharmacist' == $sessionRole){?>
-            Admin/Pharm
-            <?php }else{?>
-            Seller
-            <?php } }?>
+
+            <div class="d-flex row h-75">
+                <div class="col-md-6">
+                    <canvas id="pieChart" class="h-100"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="barGraph" class="h-100"></canvas>
+                </div>
+
+            </div>
+            <hr>
+            <div class="container mt-5">
+                <div class="h-75">
+                    <h4 class="text-center">Drug Sales Per Month</h4>
+                    <canvas id="salesChart" width="100%" height="50px"></canvas>
+                </div>
+            </div>
+            <?php }else{
+                $getSales = "SELECT s.id, s.quantity_sold, s.drug_id, d.drug_name FROM sale s
+                JOIN drugs d ON s.drug_id = d.id
+                WHERE s.salesman_id = '16'";
+                $result = mysqli_query($connection, $getSales);
+                
+                $salesData = array();
+                
+                while ($sale = mysqli_fetch_assoc($result)) {
+                    $salesData[] = $sale;
+                }
+                
+                ?>
+            <div class="container mt-5">
+                <div>
+                    
+                    <canvas id="salesCharts" width="100%" height="50px"></canvas>
+                </div>
+            </div>
+            <?php } 
+        }?>
 
 
             <!-- ---------------------- Pharmacist ------------------------ -->
@@ -1377,6 +1427,14 @@ $action = $_REQUEST['action'] ?? '';
 
     <!--------------------------------- #Main section -------------------------------->
 
+    <script>
+    function updateTotalPrice() {
+        var quantity = parseInt($("#quantity-input").val()) || 0;
+        var price = parseFloat($(".product-price").data("price")) || 0;
+        var totalPrice = quantity * price;
+        $(".total-price").val(totalPrice.toFixed(2)); // Set the total price with 2 decimal places
+    }
+    </script>
 
 
 
@@ -1406,17 +1464,230 @@ $action = $_REQUEST['action'] ?? '';
     }
     </script>
 
-
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
-    function updateTotalPrice() {
-        var quantity = parseInt($("#quantity-input").val()) || 0;
-        var price = parseFloat($(".product-price").data("price")) || 0;
-        var totalPrice = quantity * price;
-        $(".total-price").val(totalPrice.toFixed(2)); // Set the total price with 2 decimal places
+    // PHP data
+    var drugs = <?php echo json_encode($drugs); ?>;
+
+    // Process data for charts
+    var drugStatusData = {
+        labels: ['Good', 'Warning', 'Expired'],
+        pieData: [0, 0, 0],
+        barData: [0, 0, 0],
+    };
+
+    // Count drug statuses
+    drugs.forEach(function(drug) {
+        switch (drug.status) {
+            case '1':
+                drugStatusData.pieData[0]++;
+                drugStatusData.barData[0]++;
+                break;
+            case '0':
+                drugStatusData.pieData[1]++;
+                drugStatusData.barData[1]++;
+                break;
+            case '-1':
+                drugStatusData.pieData[2]++;
+                drugStatusData.barData[2]++;
+                break;
+        }
+    });
+
+    // Get the canvas elements
+    var pieCtx = document.getElementById('pieChart').getContext('2d');
+    var barCtx = document.getElementById('barGraph').getContext('2d');
+
+    // Pie Chart configuration
+    var pieOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+        },
+    };
+
+    // Bar Graph configuration
+    var barOptions = {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+    };
+
+    // Create the Pie Chart
+    var pieChart = new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: drugStatusData.labels,
+            datasets: [{
+                data: drugStatusData.pieData,
+                backgroundColor: [
+                    'rgba(0, 128, 0, 0.8)', // Good
+                    'rgba(255, 165, 0, 0.8)', // Warning
+                    'rgba(255, 0, 0, 0.8)', // Expired
+                ],
+            }],
+        },
+        options: pieOptions
+    });
+
+    // Create the Bar Graph
+    var barChart = new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: drugStatusData.labels,
+            datasets: [{
+                label: 'Drug Count',
+                data: drugStatusData.barData,
+                backgroundColor: [
+                    'rgba(0, 128, 0, 0.8)', // Good
+                    'rgba(255, 165, 0, 0.8)', // Warning
+                    'rgba(255, 0, 0, 0.8)', // Expired
+                ],
+                borderWidth: 1,
+            }],
+        },
+        options: barOptions
+    });
+    </script>
+
+    <script>
+    // PHP data
+    var salesData = <?php echo json_encode($salesData); ?>;
+
+    // Process data for the chart
+    var chartData = {
+        labels: [],
+        barData: [],
+        lineData: [],
+        colors: []
+    };
+
+    // Extract labels and data
+    salesData.forEach(function(sale) {
+        chartData.labels.push(sale.month);
+        chartData.barData.push(sale.total_sales);
+        chartData.lineData.push(sale.total_sales * 1.5); // Adjust multiplier as needed for line graph
+        // Generate a random color
+        chartData.colors.push(getRandomColor());
+    });
+
+    // Get the canvas element
+    var salesCtx = document.getElementById('salesChart').getContext('2d');
+
+    // Chart configuration
+    var chartOptions = {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+    };
+
+    // Create the chart
+    var salesChart = new Chart(salesCtx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                label: 'Total Sales',
+                data: chartData.barData,
+                backgroundColor: chartData.colors, // Use the generated colors
+                borderWidth: 1,
+                yAxisID: 'bar-y-axis',
+            }, {
+                label: 'Trend Line',
+                data: chartData.lineData,
+                type: 'line',
+                borderColor: 'rgba(255, 69, 0, 0.8)', // Fixed color for the trend line
+                borderWidth: 2,
+                yAxisID: 'line-y-axis',
+            }],
+        },
+        options: chartOptions
+    });
+
+    // Function to generate a random color
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
     }
     </script>
 
+    <script>
+    // PHP data
+    var salesData = <?php echo json_encode($salesData); ?>;
+
+    // Process data for the chart
+    var chartData = {
+        labels: [],
+        barData: [],
+        colors: []
+    };
+
+    // Extract labels and data
+    salesData.forEach(function(sale) {
+        // Check if drug_name is defined
+        var label = 'Sale ' + sale.sale_id;
+        if (sale.drug_name !== null) {
+            label += ' - ' + sale.drug_name;
+        }
+        chartData.labels.push(label);
+        chartData.barData.push(sale.quantity_sold);
+        // Generate a random color
+        chartData.colors.push(getRandomColor());
+    });
+
+    // Get the canvas element
+    var salesCtx = document.getElementById('salesCharts').getContext('2d');
+
+    // Chart configuration
+    var chartOptions = {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+    };
+
+    // Create the chart
+    var salesChart = new Chart(salesCtx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                label: 'Quantity Sold',
+                data: chartData.barData,
+                backgroundColor: chartData.colors, // Use the generated colors
+                borderWidth: 1,
+            }],
+        },
+        options: chartOptions
+    });
+
+    // Function to generate a random color
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+    </script>
     <script src="assets/js/jquery-3.5.1.slim.min.js"></script>
     <script src="assets/js/popper.min.js"></script>
     <script src="assets/js/bootstrap.min.js"></script>
