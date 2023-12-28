@@ -231,20 +231,39 @@ $action = $_REQUEST['action'] ?? '';
                 <div class="total">
                     <div class="row">
 
+                        <?php if($sessionRole=='admin'|| $sessionRole=='pharmacist'){?>
                         <div class="col-3">
                             <div class="total__box text-center">
                                 <h1>
                                     <?php
-                                                        $query = "SELECT COUNT(*) totalDrug FROM drugs;";
+                                                        $query = "SELECT COUNT(*) totalSale FROM sale;";
                                                         $result = mysqli_query($connection, $query);
-                                                        $totalPharmacist = mysqli_fetch_assoc($result);
-                                                        echo $totalPharmacist['totalDrug'];
+                                                        $totalSales = mysqli_fetch_assoc($result);
+                                                        echo $totalSales['totalSale'];
                                                         ?>
 
                                 </h1>
                                 <h2>Total Sales</h2>
                             </div>
                         </div>
+                        <?php }else{?>
+                            <div class="col-3">
+                            <div class="total__box text-center">
+                                <h1>
+                                    <?php
+                                                        $query = "SELECT COUNT(*) totalSale FROM sale WHERE salesman_id='{$sessionId}';";
+                                                        $result = mysqli_query($connection, $query);
+                                                        $totalSales = mysqli_fetch_assoc($result);
+                                                        echo $totalSales['totalSale'];
+                                                        ?>
+
+                                </h1>
+                                <h2>My Sales</h2>
+                            </div>
+                        </div>
+                        <?php }
+                        ?>
+
                         <div class="col-3">
                             <div class="total__box text-center">
                                 <h1>
@@ -1250,7 +1269,7 @@ $action = $_REQUEST['action'] ?? '';
 
         <!-- -------------------sales-------------------------------------- -->
         <?php if($id=='sales'){ 
-            $query = "SELECT * FROM sale";
+            $query = "SELECT * FROM sale ORDER BY -id";
             $sales = mysqli_query($connection, $query);
             
                        
@@ -1288,7 +1307,16 @@ $action = $_REQUEST['action'] ?? '';
                             ?>
                             <?=$fName?> <?=$lName?>
                         </td>
-                        <td><?=$sale['drug_id']?></td>
+                        <td>
+                            <?php $drugId=$sale['drug_id'];
+                            $sql = "SELECT * FROM drugs WHERE id='{$drugId}'";
+                            $stmt = mysqli_query($connection, $sql);    
+                            $drug = mysqli_fetch_assoc($stmt);
+                            $drugName = $drug['drug_name'];
+                                                       
+                            ?>
+                            <?=$drugName?>
+                        </td>
                         <td><?=$sale['quantity_sold']?></td>
                         <td><?=$sale['total_price']?></td>
                         <td><?=$sale['time_sold']?></td>
@@ -1300,6 +1328,48 @@ $action = $_REQUEST['action'] ?? '';
         </div>
         <?php }else{?>
         My Sales
+        <form class="form-group ml-5 mr-5 row">
+            <input type="text" name="searchKeyword" id="searchInput" onkeyup="searchTable()" placeholder="search"
+                class="form-control">
+
+        </form>
+
+        <div class="main__table">
+
+            <table class="table" id="dataTable">
+                <thead>
+                    <tr>
+                        <th scope="col">Drug Name</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="COL">Total Price</th>
+                        <th scope="col">Time Sold</th>
+
+                    </tr>
+                <tbody>
+                    <?php foreach($sales as $sale){
+                        if($sale['salesman_id']==$sessionId){?>
+                    <tr>
+
+                        <td>
+                            <?php $drugId=$sale['drug_id'];
+                            $sql = "SELECT * FROM drugs WHERE id='{$drugId}'";
+                            $stmt = mysqli_query($connection, $sql);    
+                            $drug = mysqli_fetch_assoc($stmt);
+                            $drugName = $drug['drug_name'];
+                                                       
+                            ?>
+                            <?=$drugName?>
+                        </td>
+                        <td><?=$sale['quantity_sold']?></td>
+                        <td><?=$sale['total_price']?></td>
+                        <td><?=$sale['time_sold']?></td>
+                    </tr>
+                    <?php }
+                }?>
+                </tbody>
+                </thead>
+            </table>
+        </div>
 
         <?php } }?>
         </div>
