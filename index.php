@@ -352,7 +352,7 @@ $action = $_REQUEST['action'] ?? '';
             <?php }else{
                 $getSales = "SELECT s.id, s.quantity_sold, s.drug_id, d.drug_name FROM sale s
                 JOIN drugs d ON s.drug_id = d.id
-                WHERE s.salesman_id = '16'";
+                WHERE s.salesman_id = '$sessionId'";
                 $result = mysqli_query($connection, $getSales);
                 
                 $salesData = array();
