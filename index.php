@@ -48,7 +48,9 @@ $action = $_REQUEST['action'] ?? '';
                     echo "DashBoard";
                 }elseif ('statistics' == $id) {
                     echo "Statistics";
-                } elseif ('addPharmacist' == $id) {
+                }elseif ('reports' == $id) {
+                    echo "Reports";
+                }  elseif ('addPharmacist' == $id) {
                     echo "Add Pharmacist";
                 } elseif ('allPharmacist' == $id) {
                     echo "Pharmacists";
@@ -222,7 +224,7 @@ $action = $_REQUEST['action'] ?? '';
             <?php
             } ?>
         </ul>
-        
+
     </section>
     <!--------------------------------- #Sideber -------------------------------->
 
@@ -249,7 +251,7 @@ $action = $_REQUEST['action'] ?? '';
                                                         ?>
 
                                 </h1>
-                                <h2>Total Sales</h2>
+                                <h2> Sales</h2>
                             </div>
                         </div>
                         <?php }else{?>
@@ -304,11 +306,11 @@ $action = $_REQUEST['action'] ?? '';
                             <div class="total__box text-center">
                                 <h1>
                                     <?php
-                                                        $query = "SELECT COUNT(*) totalSalesman FROM salesmans;";
-                                                        $result = mysqli_query($connection, $query);
-                                                        $totalSalesman = mysqli_fetch_assoc($result);
-                                                        echo $totalSalesman['totalSalesman'];
-                                                        ?>
+                                        $query = "SELECT COUNT(*) totalSalesman FROM salesmans;";
+                                        $result = mysqli_query($connection, $query);
+                                        $totalSalesman = mysqli_fetch_assoc($result);
+                                        echo $totalSalesman['totalSalesman'];
+                                        ?>
                                 </h1>
                                 <h2>Otherusers</h2>
                             </div>
@@ -317,7 +319,7 @@ $action = $_REQUEST['action'] ?? '';
                 </div>
             </div>
             <?php } ?>
-            <!-- ---------------------- DashBoard ------------------------ -->
+            <!-- ---------------------- DashBoard endsssssssssssssss------------------------ -->
 
             <!-- ------------------------------statistics------------------------ -->
             <?php if($id=='statistics'){ 
@@ -355,26 +357,97 @@ $action = $_REQUEST['action'] ?? '';
                 </div>
             </div>
             <?php }else{
-                $getSales = "SELECT s.id, s.quantity_sold, s.drug_id, d.drug_name FROM sale s
-                JOIN drugs d ON s.drug_id = d.id
-                WHERE s.salesman_id = '$sessionId'";
-                $result = mysqli_query($connection, $getSales);
-                
-                $salesData = array();
-                
-                while ($sale = mysqli_fetch_assoc($result)) {
-                    $salesData[] = $sale;
-                }
-                
-                ?>
+                    $getSales = "SELECT s.id, s.quantity_sold, s.drug_id, d.drug_name FROM sale s
+                    JOIN drugs d ON s.drug_id = d.id
+                    WHERE s.salesman_id = '$sessionId'";
+                    $result = mysqli_query($connection, $getSales);
+                    
+                    $salesData = array();
+                    
+                    while ($sale = mysqli_fetch_assoc($result)) {
+                        $salesData[] = $sale;
+                    }
+                    
+                    ?>
             <div class="container mt-5">
                 <div>
-                    
+
                     <canvas id="salesCharts" width="100%" height="50px"></canvas>
                 </div>
             </div>
-            <?php } 
-        }?>
+            <?php } }?>
+
+
+            <!-- -----------------------------------------reports--------------------------------------------- -->
+            <?php if($id=='reports'){?>
+            <div class="container">
+                <a href="index.php?id=generate_report" class="btn btn-success">Generate New report</a>
+                <div class="main__table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Date Generated</th>
+                                <th scope="col">Report Name</th>
+                                <th scope="col">Download</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2-02-2023</td>
+                                <td>Report One</td>
+                                <td><a href=""><i class="fa fa-download"></i></a></td>
+                            </tr>
+
+
+                        </tbody>
+                    </table>
+
+
+                </div>
+            </div>
+            <?php } ?>
+
+
+            <?php if($id=='generate_report'){
+                $report = "  <div class='container p-4'>
+                <h3 class='text-center text-success'>Drug Management System</h3>
+                <h5  class='text-center'>Comparative Analysis of Available Drugs: Good, Warning, and Expired</h5>
+                <h6><b>1. Good Drugs:</b></h6>
+                <p><b>• Percentage: 70%</b><br>-High efficacy, safety, and reliability.<br>
+                    -Adherence to GMP standards, accurate labeling, and proper storage
+                </p>
+                <h6><b>2. Drugs with Warning Signs:</b></h6>
+                <p><b>• Percentage: 20%</b><br>
+                    - Early identification of potential issues.<br>
+                    - Unusual odor, appearance, packaging inconsistencies, or batch recalls.
+                </p>
+                <h6><b>3. Good Drugs:</b></h6>
+                <p><b>• Percentage: 20%</b><br>
+                    - Early identification of potential issues.<br>
+                    - Unusual odor, appearance, packaging inconsistencies, or batch recalls.
+                </p>
+
+                <h6><b>Sales</b></h6>
+                <p>The sales have increased</p>
+
+            </div>";
+                ?>
+
+            <form action="">
+                <input type="hidden" value="<?=$sessionId?>" name="" id="">
+                <input type="hidden" value="<?=$sessionRole?>" name="" id="">
+                <label for="">Report name</label><br>
+                <input type="text" name="report_name" id="" required>
+                <button class="btn-success p-1 ">Save</button>
+                <a href="index.php?id=reports" class="btn-secondary ml-2 p-2">Cancel</a>
+            </form>
+            <hr>
+            <?=$report?>
+
+          
+
+            <?php } ?>
 
 
             <!-- ---------------------- Pharmacist ------------------------ -->
