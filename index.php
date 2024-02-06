@@ -110,7 +110,7 @@ $action = $_REQUEST['action'] ?? '';
 
                                         } elseif ($role == 'admin') {
 
-                                            echo "$fname $lname (Medical Supretendant)";
+                                            echo "$fname $lname (Systems Admin)";
                                         } else {
 
                                             echo "$fname $lname (" . ucwords($role) . " )";
@@ -147,6 +147,11 @@ $action = $_REQUEST['action'] ?? '';
                 <a href="index.php?id=statistics"><i id="left" class="fas fa-bars"></i></i>Statistics</a>
             </li>
 
+            <li id="left" class="sideber__item sideber__item--modify<?php if ('reports' == $id) {
+                                    echo " active";
+                                } ?>">
+                <a href="index.php?id=reports"><i id="left" class="fas fa-book"></i></i>Reports</a>
+            </li>
 
             <?php if ('admin' == $sessionRole) { ?>
             <!-- For Admin,  -->
@@ -217,7 +222,7 @@ $action = $_REQUEST['action'] ?? '';
             <?php
             } ?>
         </ul>
-        <footer class="text-center"><span>DMS</span><br>©2023 All right reserved. By Shaka</footer>
+        
     </section>
     <!--------------------------------- #Sideber -------------------------------->
 

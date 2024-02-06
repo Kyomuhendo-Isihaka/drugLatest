@@ -52,7 +52,7 @@ if ($sessionId && $sessionRole) {
                             <label class="input">
                                 <i id="left" class="fas fa-male left"></i>
                                 <select name="role" id="Role">
-                                    <option value="admins">Medical Supretendant</option>
+                                    <option value="admins">Systems Admin</option>
                                     <option value="pharmacists">Pharmacist</option>
                                     <!-- <option value="salesmans">OtherUser</option> -->
                                     <optgroup label="Other Users">
