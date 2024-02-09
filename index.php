@@ -379,7 +379,11 @@ $action = $_REQUEST['action'] ?? '';
 
 
             <!-- -----------------------------------------reports--------------------------------------------- -->
-            <?php if($id=='reports'){?>
+            <?php if($id=='reports'){
+                 $getReports = "SELECT * FROM report WHERE user_id = '$sessionId' AND user_role = '$sessionRole'";
+
+                $res = mysqli_query($connection, $getReports);
+                ?>
             <div class="container">
                 <a href="index.php?id=generate_report" class="btn btn-success">Generate New report</a>
                 <div class="main__table">
@@ -393,11 +397,13 @@ $action = $_REQUEST['action'] ?? '';
                             </tr>
                         </thead>
                         <tbody>
+                            <?php while($report=mysqli_fetch_assoc($res)){?>
                             <tr>
-                                <td>2-02-2023</td>
-                                <td>Report One</td>
-                                <td><a href=""><i class="fa fa-download"></i></a></td>
+                                <td><?=$report['date_generated']?></td>
+                                <td><a href="reports/<?=$report['file_name']?>"><?=$report['report_name']?></a></td>
+                                <td><a href="reports/<?=$report['file_name']?>" download="<?=$report['report_name']?>.pdf"><i class="fa fa-download"></i></a></td>
                             </tr>
+                            <?php }?>
 
 
                         </tbody>
@@ -413,39 +419,43 @@ $action = $_REQUEST['action'] ?? '';
                 $report = "  <div class='container p-4'>
                 <h3 class='text-center text-success'>Drug Management System</h3>
                 <h5  class='text-center'>Comparative Analysis of Available Drugs: Good, Warning, and Expired</h5>
-                <h6><b>1. Good Drugs:</b></h6>
+                <h2><b>1. Good Drugs:</b></h2>
                 <p><b>• Percentage: 70%</b><br>-High efficacy, safety, and reliability.<br>
                     -Adherence to GMP standards, accurate labeling, and proper storage
                 </p>
-                <h6><b>2. Drugs with Warning Signs:</b></h6>
+                <h2><b>2. Drugs with Warning Signs:</b></h2>
                 <p><b>• Percentage: 20%</b><br>
                     - Early identification of potential issues.<br>
                     - Unusual odor, appearance, packaging inconsistencies, or batch recalls.
                 </p>
-                <h6><b>3. Good Drugs:</b></h6>
+                <h2><b>3. Good Drugs:</b></h2>
                 <p><b>• Percentage: 20%</b><br>
                     - Early identification of potential issues.<br>
                     - Unusual odor, appearance, packaging inconsistencies, or batch recalls.
                 </p>
 
-                <h6><b>Sales</b></h6>
+                <h2><b>Sales</b></h2>
                 <p>The sales have increased</p>
 
             </div>";
                 ?>
 
-            <form action="">
-                <input type="hidden" value="<?=$sessionId?>" name="" id="">
-                <input type="hidden" value="<?=$sessionRole?>" name="" id="">
+            <form action="add.php" method="POST">
+                <input type="hidden" value="<?=$sessionId?>" name="user_id" id="">
+                <input type="hidden" value="<?=$sessionRole?>" name="role" id="">
+                <input type="hidden" value="<?=$report?>" name="report" id="">
+                <input type="hidden" value="generate_report" name="action" id="">
+
+
                 <label for="">Report name</label><br>
                 <input type="text" name="report_name" id="" required>
-                <button class="btn-success p-1 ">Save</button>
+                <button type="submit" class="btn-success p-1 ">Save</button>
                 <a href="index.php?id=reports" class="btn-secondary ml-2 p-2">Cancel</a>
             </form>
             <hr>
             <?=$report?>
 
-          
+
 
             <?php } ?>
 

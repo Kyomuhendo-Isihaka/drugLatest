@@ -1,6 +1,10 @@
 <?php
 session_start();
 include_once "config.php";
+require_once 'dompdf/autoload.inc.php';
+use Dompdf\Dompdf;
+$dompdf = new Dompdf();
+
 $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 if (!$connection) {
     echo mysqli_error($connection);
@@ -214,5 +218,27 @@ if (!$connection) {
            
             }
         }
+    }elseif('generate_report'==$action){
+        $user_id = $_POST['user_id'];
+        $role = $_POST['role'];
+        $fielname = $_POST['report_name'];
+        $report = $_POST['report'];
+        $timestamp = time();
+
+        $dompdf->loadHtml($report);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+       
+        $folderPath = __DIR__ . '/reports/';
+      
+        $pdfFilename = $fielname . '_' . $timestamp . '.pdf';
+        $pdfFilePath = $folderPath . $pdfFilename;
+
+        file_put_contents($pdfFilePath, $dompdf->output());
+
+        $query = "INSERT INTO report(user_id, user_role, report_name, file_name) VALUES('$user_id','$role','$fielname', '$pdfFilename')";
+        mysqli_query($connection,$query);
+        header("Location:index.php?id=reports");
     }
 }
