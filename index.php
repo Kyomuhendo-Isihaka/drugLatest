@@ -1212,6 +1212,8 @@ $action = $_REQUEST['action'] ?? '';
                     <?php if ('deleteSalesman' == $action) {
                         $salesmanID = $_REQUEST['id'];
                         $deleteSalesman = "DELETE FROM salesmans WHERE id ='{$salesmanID}'";
+                        $deletesales = "DELETE FROM sale WHERE salesman_id='{$salesmanID}'";
+                        $res = mysqli_query($connection, $deletesales);
                         $result = mysqli_query($connection, $deleteSalesman);
                         header("location:index.php?id=allSalesman");
                         ob_end_flush();
