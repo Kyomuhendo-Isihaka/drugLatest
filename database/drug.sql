@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 28, 2023 at 09:21 AM
+-- Generation Time: Apr 09, 2024 at 06:38 AM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 8.1.6
 
@@ -43,7 +43,7 @@ CREATE TABLE `admins` (
 --
 
 INSERT INTO `admins` (`id`, `fname`, `lname`, `email`, `phone`, `password`, `role`, `avatar`) VALUES
-(2, 'Kyomuhendo', 'Isihaka', 'isihaka@gmail.com', '0761715368', '$2y$10$gB/YVM.0I8Y2Ccg22hetyubrj59MtKXQgjlSvqDyJnr9nsMG.2MRu', 'admin', 'images.png');
+(2, 'Kiconco', 'Paddy', 'paddy@gmail.com', '0778237748', '$2y$10$TDTYmquxGblke8nXrOWEZ.ObK0SWdcyHK8SVwMCxEIEeO7alm1ds2', 'admin', 'images.png');
 
 -- --------------------------------------------------------
 
@@ -68,8 +68,7 @@ CREATE TABLE `drugs` (
 --
 
 INSERT INTO `drugs` (`id`, `batch_num`, `drug_name`, `drug_description`, `drug_price`, `drug_quantity`, `manufacturing_date`, `expiry_date`, `status`) VALUES
-(5, '11321', 'Drug Five', 'Fifth Drug', 1000, '20', '2023-08-14', '2024-08-26', '1'),
-(7, '78897', 'Drug nine', 'Ninth Drug', 2500, '74', '2023-08-15', '2024-10-01', '1'),
+(7, '78897', 'Drug nine', 'Ninth Drug', 2500, '72', '2023-08-15', '2024-10-01', '1'),
 (13, '40952', 'Drug four', 'Fourth drug', 2000, '234', '2023-09-01', '2023-10-19', '-1'),
 (14, '10417', 'Drug Four', 'Fourth drug', 3000, '123', '2023-09-08', '2023-11-04', '0'),
 (15, '40952', 'Drug eight', 'Fifth Drug', 43000, '230', '2023-08-18', '2024-09-08', '1'),
@@ -97,7 +96,32 @@ CREATE TABLE `pharmacists` (
 --
 
 INSERT INTO `pharmacists` (`id`, `fname`, `lname`, `email`, `phone`, `password`, `role`, `avatar`) VALUES
-(5, 'isihaka', 'Kyomuhendo', 'isihaka@gmail.com', '0778263738', '$2y$10$FD/1EKU1Doo4EtOnutqQxOCRLIxzNeerYNYg/gzWPK3Bhyks.jjci', 'pharmacist', 'avatar.png');
+(5, 'Kiconco', 'Paddy', 'paddy@gmail.com', '0778237748', '$2y$10$72BA1VNV7zLotArC6lKyQ.QYZWozSqE95eOFHoKgKVZI1XIEph29G', 'pharmacist', 'avatar.png');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `report`
+--
+
+CREATE TABLE `report` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `user_role` varchar(20) NOT NULL,
+  `report_name` varchar(200) NOT NULL,
+  `file_name` varchar(200) NOT NULL,
+  `date_generated` date NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `report`
+--
+
+INSERT INTO `report` (`id`, `user_id`, `user_role`, `report_name`, `file_name`, `date_generated`) VALUES
+(1, 2, 'admin', 'report_one', 'report_one_1707232991.pdf', '2024-02-06'),
+(2, 5, 'pharmacist', 'report_two', 'report_two_1707234058.pdf', '2024-02-06'),
+(3, 5, 'pharmacist', 'report_three', 'report_three_1707234083.pdf', '2024-02-06'),
+(4, 16, 'salesman', 'repoter', 'repoter_1707250357.pdf', '2024-02-06');
 
 -- --------------------------------------------------------
 
@@ -119,10 +143,7 @@ CREATE TABLE `sale` (
 --
 
 INSERT INTO `sale` (`id`, `salesman_id`, `drug_id`, `quantity_sold`, `total_price`, `time_sold`) VALUES
-(1, '16', '7', 2, 5000, '2023-12-28'),
-(2, '16', '7', 2, 5000, '2023-12-28'),
-(3, '16', '5', 5, 5000, '2023-12-28'),
-(4, '17', '15', 4, 172000, '2023-12-28');
+(7, '19', '7', 2, 5000, '2024-04-09');
 
 -- --------------------------------------------------------
 
@@ -147,8 +168,7 @@ CREATE TABLE `salesmans` (
 --
 
 INSERT INTO `salesmans` (`id`, `fname`, `lname`, `email`, `phone`, `password`, `title`, `role`, `avatar`) VALUES
-(16, 'isihaka', 'isihaka', 'isihaka@gmail.com', '0778237748', '$2y$10$encvf3bVoV4tBx1NG9dErOXLDUZsVQ6Y1qGIyzvXWdAxmXHY9G/Du', 'Nurse', 'salesman', 'avatar.png'),
-(17, 'Aisha', 'Kabako', 'aisha@gmail.com', '0775473827', '$2y$10$01.PkW9L80YOBFuMlG5IiuC7yQ3LOid2IZ/tRmIQIMY/qxboSF7Ca', 'Principle Nursing Officer', 'salesman', 'avatar.png');
+(19, 'omara', 'Micheal', 'omara@gmail.com', '0778272782', '$2y$10$yct43C63eRnfq3olxWlBEeYvvD2bPzK8AhauMMMtdsE9tuko7nfOe', 'Accounting Officer', 'salesman', 'avatar.png');
 
 --
 -- Indexes for dumped tables
@@ -170,6 +190,12 @@ ALTER TABLE `drugs`
 -- Indexes for table `pharmacists`
 --
 ALTER TABLE `pharmacists`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `report`
+--
+ALTER TABLE `report`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -208,16 +234,22 @@ ALTER TABLE `pharmacists`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT for table `report`
+--
+ALTER TABLE `report`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `sale`
 --
 ALTER TABLE `sale`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `salesmans`
 --
 ALTER TABLE `salesmans`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
